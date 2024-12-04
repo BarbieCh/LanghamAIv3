@@ -1,113 +1,890 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Slideshow</title>
-<style>
-:root {
-    --langham-dark: #282c34;
-    --langham-gold: #f7e08b;
-    --langham-darkgold: #b5a65d;
-}
-
-.slide-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    overflow-y: auto;
-    margin-bottom: 60px; /* Add this line to create space for the controls */
-}
-
-.controls {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    background: var(--langham-dark);
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-}
-
-button {
-    padding: 12px 24px;
-    border: none;
-    background: var(--langham-gold);
-    color: var(--langham-dark);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Arial', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-    border-radius: 4px;
-}
-
-button:hover {
-    background: var(--langham-darkgold);
-    color: white;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Innovation at Langham Hospitality Group</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --langham-gold: #C4A962;
+            --langham-darkgold: #8f7a45;
+            --langham-dark: #2C2C2C;
+            --langham-light: #F5F5F5;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', serif;
+            background: var(--langham-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .slide-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 80px; /* Increased to ensure space for controls */
+        }
+        .slide {
+            background: white;
+            padding: 20px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .slide.active {
+            display: block;
+            opacity: 1;
+        }
+        .slide h1 {
+            color: var(--langham-dark);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--langham-gold);
+            padding-bottom: 10px;
+        }
+        .slide h2 {
+            color: var(--langham-darkgold);
+            font-size: 1.4em;
+        }
+        .slide h3 {
+            color: var(--langham-gold);
+            font-size: 1.0em;
+        }
+        .slide ul {
+            color: var(--langham-dark);
+            line-height: 1.6;
+        }
+        .source-citation {
+            font-size: 0.8em;
+            color: #666;
+            font-style: italic;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .slide sh1 {
+            color: var(--langham-dark);
+            font-size: 1.0em;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--langham-dark);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            background: var(--langham-gold);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background: #A08440;
+        }
+        .stat-box {
+            background: var(--langham-light);
+            padding: 20px;
+            margin: 10px 0;
+            border-left: 4px solid var(--langham-gold);
+        }
+        .case-study {
+            background: #f9f9f9;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .chart-container {
+            position: relative;
+            margin: 20px auto;
+            height: 300px;
+            width: 100%;
+        }
+        .dual-chart {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .chart-box {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .agenda-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .agenda-number {
+            background: var(--langham-gold);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .highlight-box {
+            background: linear-gradient(45deg, var(--langham-gold), #E5D5A8);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: var(--langham-gold);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+        .timeline-date {
+            font-weight: bold;
+            color: var(--langham-gold);
+            margin-bottom: 10px;
+        }
+        .timeline-content {
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .investment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .investment-item {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .kpi-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .kpi-value {
+            font-size: 1.25em;
+            color: var(--langham-gold);
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .slide {
+                padding: 15px;
+            }
+            .slide h1 {
+                font-size: 1.5em;
+            }
+            .slide h2 {
+                font-size: 1.2em;
+            }
+            .dual-chart {
+                flex-direction: column;
+            }
+            .chart-box {
+                min-width: 100%;
+            }
+            .timeline::before {
+                left: 20px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 50px;
+            }
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="slide-container">
-  <div id="slide1" class="slide">
-    <h1>Slide 1</h1>
-    <p>This is slide 1.</p>
-  </div>
-  <div id="slide2" class="slide">
-    <h1>Slide 2</h1>
-    <p>This is slide 2.</p>
-  </div>
-  <div id="slide3" class="slide">
-    <h1>Slide 3</h1>
-    <p>This is slide 3.</p>
-  </div>
-</div>
+    <div class="slide-container">
+        <div class="slide active" id="slide1">
+            <h1>Transforming Luxury Hospitality Through AI</h1>
+            <h2>A Vision for Langham Hospitality Group</h2>
+            <div class="highlight-box">
+                <p>"Where Timeless Elegance Meets Artificial Intelligence"</p>
+            </div>
+            <div class="stat-box">
+                <p>Langham Portfolio: 4 Brands | 37 Destinations | 48 Hotels</p>
+            </div>
+        </div>
 
-<div class="controls">
-    <button onclick="prevSlide()" id="prevButton">Previous</button>
-    <button onclick="nextSlide()" id="nextButton">Next</button>
-</div>
+        <div class="slide" id="slide2">
+            <h1>Presentation Agenda</h1>
+            <div class="agenda-item">
+                <div class="agenda-number">1</div>
+                <h3>The Luxury Hospitality Landscape</h3>
+            </div>
+            <div class="agenda-item">
+                <div class="agenda-number">2</div>
+                <h3>Cross-Industry AI Success Cases</h3>
+            </div>
+            <div class="agenda-item">
+                <div class="agenda-number">3</div>
+                <h3>Langham AI Opportunities</h3>
+            </div>
+            <div class="agenda-item">
+                <div class="agenda-number">4</div>
+                <h3>Implementation Roadmap</h3>
+            </div>
+            <div class="agenda-item">
+                <div class="agenda-number">5</div>
+                <h3>Investment and Returns</h3>
+            </div>
+        </div>
 
-<script>
-const slides = document.querySelectorAll('.slide');
-let currentSlide = 1;
-const totalSlides = slides.length;
+        <div class="slide" id="slide3">
+            <h1>The Luxury Hospitality Landscape</h1>
+            <div class="chart-container">
+                <canvas id="marketChart"></canvas>
+            </div>
+            <div class="stat-box">
+                <ul>
+                    <li>Global luxury hotel market size: $95.1 billion (2023)</li>
+                    <li>AI in hospitality market: $1.21 billion (2023)</li>
+                    <li>Expected CAGR: 25.8% (2024-2030)</li>
+                </ul>
+            </div>
+            <div class="source-citation">
+               <p> Sources: McKinsey Global Institute "AI in Hospitality 2024", Deloitte Hotel Industry Analysis 2023,
+                Gartner AI Industry Reports Q4 2023
+            </div>
+        </div>
 
-function showSlide(n) {
-    slides.forEach(slide => slide.style.display = 'none');
-    slides[n - 1].style.display = 'block';
-}
+        <div class="slide" id="slide4">
+            <h1>The Luxury Hospitality Landscape</h1>
+            <div class="section-container">
+                <h3>Market Dynamics:</h3>
+                <ul>
+                    <li>Rising demand for experiential luxury</li>
+                    <li>Increasing focus on sustainability</li>
+                    <li>Growing importance of personalization</li>
+                </ul>
+            </div>
+                    
+            <div class="section-container">
+                <h3>Key Challenges:</h3>
+                <ul>
+                    <li>Evolving guest expectations</li>
+                    <li>Need for technological integration</li>
+                    <li>Maintaining personal touch</li>
+                    <li>Competition from boutique hotels</li>
+                </ul>
+            </div>
+        </div>
 
-showSlide(currentSlide);
+        <div class="slide" id="slide5">
+            <h1>Cross-Industry AI Success Cases</h1>
+            <div class="chart-container">
+                <canvas id="industryComparisonChart"></canvas>
+            </div>
+            <div class="case-study">
+                <h3>Key Learnings for Langham:</h3>
+                <ul>
+                    <li>Personalization drives loyalty (Retail - Amazon: 35% sales from recommendations)</li>
+                    <li>Predictive analytics reduces costs (Manufacturing - Siemens: 20% energy savings)</li>
+                    <li>Real-time adaptability increases satisfaction (Banking - JP Morgan: 360,000 hours saved annually)</li>
+                    <li>Predictive maintenance enhances efficiency (Aviation - Emirates: 42% reduction in maintenance costs)</li>
+                    <li>AI customer support improves resolution rates (Banking - DBS Bank: 85% first-contact resolution rate)</li>
+                </ul>
+            </div>
+        </div>
 
-function updateButtonStates() {
-    document.getElementById('prevButton').disabled = currentSlide === 1;
-    document.getElementById('nextButton').disabled = currentSlide === totalSlides;
-}
+        <div class="slide" id="slide6">
+            <h1>Langham AI Opportunities</h1>
+            <ul>
+                <li>Personalized Guest Experience
+                    <ul>
+                        <li>Personalized room settings memory</li>
+                        <li>Enhance personalization for Brilliant by Langham</li>
+                        <li>Predictive offerings and tailored guest services</li>
+                    </ul>
+                </li>
+                <li>Operational Excellence
+                    <ul>
+                        <li>Smart energy management reducing costs by 20-30%</li>
+                        <li>Dynamic pricing system, demand forecasting and inventory optimization</li>
+                        <li>AI-driven staffing optimization</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="chart-container">
+                <canvas id="aiAdoptionChart"></canvas>
+            </div>
+        </div>
 
-function nextSlide() {
-    if (currentSlide < totalSlides) {
-        currentSlide++;
-        showSlide(currentSlide);
-        updateButtonStates();
-    }
-}
+        <div class="slide" id="slide7">
+            <h1>Smart Room Management</h1>
+            <sh1>AI-powered room automation and personalization system</sh1>
+            <div class="project-card">
+                <h2>Success Projections:</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">20-30%</div>
+                        <div>Energy Savings</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">25%</div>
+                        <div>Guest Satisfaction Increase</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">50%</div>
+                        <div>Maintenance Response Time Reduces</div>
+                    </div>
+                </div>
+                <h2>Strategies:</h2>
+                <ul class="benefit-list">
+                    <li>AI-powered room controls and automation</li>
+                    <li>Predictive maintenance systems and alerts</li>
+                    <li>Personalized room settings memory</li>
+                    <li>Occupancy-based energy management</li>
+                    <li>Voice-controlled amenities</li>
+                </ul>
+                <h2>Implementation Strategy:</h2>
+                <ul class="benefit-list">
+                    <li>1. Pilot program in 10% of rooms across 5 Langham properties</li>
+                    <li>2. Gather Langham guest feedback and usage data</li>
+                    <li>3. Refine and optimize based on Langham-specific insights</li>
+                    <li>4. Phased rollout to all Langham properties over 18 months</li>
+                    <li>5. Continuous iteration and Langham-tailored feature updates</li>
+                </ul>
+            </div>
+        </div>
 
-function prevSlide() {
-    if (currentSlide > 1) {
-        currentSlide--;
-        showSlide(currentSlide);
-        updateButtonStates();
-    }
-}
+        <div class="slide" id="slide8">
+            <h1>Revenue Optimization</h1>
+            <sh1>Dynamic pricing system, demand forecasting and inventory optimization</sh1>
+           <div class="project-card">
+                <h2>Success Projections:</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">7-15%</div>
+                        <div>RevPAR Increase</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">Improved</div>
+                        <div>Occupancy Rates</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">Maximized</div>
+                        <div>Revenue During Peak Periods</div>
+                    </div>
+                </div>
+                <h2>Strategies:</h2>
+                <ul class="benefit-list">
+                    <li>Implement dynamic pricing algorithms by LHG brand</li>
+                    <li>Develop targeted upselling for Langham experiences</li>
+                    <li>Optimize distribution channel mix for LHG properties</li>
+                    <li>Enhance Brilliant by Langham loyalty program</li>
+                    <li>Utilize predictive analytics for demand forecasting</li>
+                </ul>
+                <h2>Implementation Strategy:</h2>
+                <ul class="benefit-list">
+                    <li>1. Integrate AI-powered revenue management system tailored for LHG brands</li>
+                    <li>2. Train LHG staff on new upselling techniques</li>
+                    <li>3. Conduct A/B testing on brand-specific pricing strategies</li>
+                    <li>4. Implement real-time competitor rate monitoring for each LHG market</li>
+                    <li>5. Develop personalized LHG package recommendations</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide9">
+            <h1>Personalization at Scale</h1>
+            <sh1>Predictive offerings and tailored guest services</sh1>
+           <div class="project-card">
+                <h2>Success Projections:</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">25%</div>
+                        <div>Guest Satisfaction Increase</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">25%</div>
+                        <div>Guest Loyalty - Repeat Booking Rates</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">Increased</div>
+                        <div>Ancillary Revenue</div>
+                    </div>
+                </div>
+                <h2>Strategies:</h2>
+                <ul class="benefit-list">
+                    <li>Guest data integration across all LHG properties</li>
+                    <li>AI-driven guest profiling and Real-time Langham guest preference tracking</li>
+                    <li>Behavioral analytics and automated personalization engine</li>
+                    <li>Predictive Langham service recommendations powered by machine learning</li>
+                </ul>
+               <h2>Implementation Strategy:</h2>
+                <ul class="benefit-list">
+                    <li>1. Centralize guest data from all Langham properties</li>
+                    <li>2. Develop AI algorithms for Langham-specific preference analysis</li>
+                    <li>3. Create personalized Langham communication templates</li>
+                    <li>4. Train Langham staff on utilizing personalization insights</li>
+                    <li>5. Implement feedback loop for continuous Langham experience improvement</li>
+                </ul>
+            </div>
+        </div>
 
-updateButtonStates();
-</script>
+        <div class="slide" id="slide10">
+            <h1>AI Concierge Services</h1>
+            <sh1>24/7 multilingual AI-powered concierge assistance</sh1>
+            <div class="project-card">
+                <h2>Success Projections:</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">92%</div>
+                        <div>Query Resolution Rate</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">40%</div>
+                        <div>Response Time Reduction</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">12</div>
+                        <div>Languages support</div>
+                    </div>
+                </div>
+                <h2>Strategies:</h2>
+                <ul class="benefit-list">
+                    <li>Instant response to guest queries and seamless integration with Langham's guest management systems</li>
+                    <li>Comprehensive multi-channel support (app, web, in-room interfaces)</li>
+                    <li>Real-time personalization based on guest history and preferences</li>
+                    <li>Predictive service anticipation and proactive recommendations</li>
+                </ul>
+                <h2>Implementation Strategy:</h2>
+                <ul class="benefit-list">
+                    <li>1. Design LHG-specific AI conversational model</li>
+                    <li>2. Technical infrastructure development </li>
+                    <li>3. Initial deployment in 3-5 flagship Langham properties</li>
+                    <li>4. Real-time performance monitoring and continuous learning and gradual expansion to all Langham global properties</li>
+                    <li>5. Implement feedback loop for continuous Langham experience improvement</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide11">
+            <h1>Implementation Roadmap</h1>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">Q1 2025</div>
+                    <div class="timeline-content">
+                        <h3>Phase 1: Smart Room Deployment</h3>
+                        <ul>
+                            <li>IoT integration for climate control, lighting, and amenities</li>
+                            <li>AI-powered room customization based on guest preferences</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Q2 2025</div>
+                    <div class="timeline-content">
+                        <h3>Phase 2: AI Concierge Integration</h3>
+                        <ul>
+                            <li>Natural language processing for multi-lingual support</li>
+                            <li>Integration with local attractions and services</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Q3 2025</div>
+                    <div class="timeline-content">
+                        <h3>Phase 3: Revenue Management System</h3>
+                        <ul>
+                            <li>Dynamic pricing algorithms</li>
+                            <li>Demand forecasting and inventory optimization</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Q4 2025</div>
+                    <div class="timeline-content">
+                        <h3>Phase 4: Cross-Property Integration</h3>
+                        <ul>
+                            <li>Unified guest profiles across all Langham properties</li>
+                            <li>AI-driven global marketing campaigns</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide12">
+            <h1>Detailed Investment Breakdown</h1>
+            <div class="chart-container">
+                <canvas id="detailedInvestmentChart"></canvas>
+            </div>
+            <div class="stat-box">
+                <h3>Investment Allocation</h3>
+                <ul>
+                    <li>Hardware: $4.5M (24%)</li>
+                    <li>Software: $3.2M (17%)</li>
+                    <li>Cloud Infrastructure: $2.2M (12%)</li>
+                    <li>Training: $1.5M (8%)</li>
+                    <li>Integration: $2.8M (15%)</li>
+                    <li>Contingency: $4.5M (24%)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide" id="slide13">
+            <h1>ROI and Cost Savings Projection</h1>
+            <div class="dual-chart">
+                <div class="chart-box">
+                    <canvas id="detailedRoiChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <canvas id="costSavingsChart"></canvas>
+                </div>
+            </div>
+            <div class="stat-box">
+                <h3>Financial Projections</h3>
+                <ul>
+                    <li>Total Investment: $18.75M</li>
+                    <li>Projected Returns:
+                        <ul>
+                            <li>Year 1: $11.4M</li>
+                            <li>Year 2: $29.6M</li>
+                            <li>Year 3: $56.2M</li>
+                        </ul>
+                    </li>
+                    <li>Cumulative Savings: $42.3M</li>
+                </ul>
+            </div>
+        </div>
+    
+        <div class="slide" id="slide14">
+            <h1>Investment and Returns</h1>
+            <div class="dual-chart">
+                <div class="chart-box">
+                    <canvas id="investmentChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <canvas id="roiChart"></canvas>
+                </div>
+            </div>
+            <div class="stat-box">
+                <p>Projected ROI:</p>
+                <ul>
+                    <li>Initial Investment: $18.75M</li>
+                    <li>Expected Returns: 2.5x in 3 years</li>
+                    <li>Operational Cost Reduction: 18-22%</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide" id="slide15">
+            <h1>Three-Year Implementation Roadmap</h1>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2025 Q1-Q2</div>
+                    <div class="timeline-content">
+                        <h3>Phase 1: Foundation and Initial Deployment</h3>
+                        <ul>
+                            <li>IoT infrastructure setup</li>
+                            <li>AI room customization pilot</li>
+                            <li>Initial data collection systems</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2025 Q3-Q4</div>
+                    <div class="timeline-content">
+                        <h3>Phase 2: AI Integration and Personalization</h3>
+                        <ul>
+                            <li>AI concierge development</li>
+                            <li>Guest preference tracking</li>
+                            <li>Initial personalization algorithms</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2026</div>
+                    <div class="timeline-content">
+                        <h3>Phase 3: Advanced AI Capabilities</h3>
+                        <ul>
+                            <li>Machine learning model refinement</li>
+                            <li>Expanded predictive analytics</li>
+                            <li>Cross-property integration</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2027</div>
+                    <div class="timeline-content">
+                        <h3>Phase 4: Full AI Ecosystem</h3>
+                        <ul>
+                            <li>Complete AI integration</li>
+                            <li>Advanced sustainability models</li>
+                            <li>Continuous innovation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+                
+        <div class="slide" id="slide16">
+            <h1>The Future of Luxury Hospitality</h1>
+            <h2>Where Innovation Meets Tradition</h2>
+            <div class="highlight-box">
+                <p>Langham's AI Vision:</p>
+                <ul>
+                    <li>Seamless luxury experience</li>
+                    <li>Personalized service at scale</li>
+                    <li>Sustainable operations</li>
+                    <li>Industry leadership in innovation</li>
+                </ul>
+            </div>
+            <div class="chart-container">
+                <canvas id="visionChart"></canvas>
+            </div>
+        </div>
+    </div>
+        
+    <div class="controls">
+        <button onclick="prevSlide()">Previous</button>
+        <button onclick="nextSlide()">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 16;
+
+        function showSlide(slideNumber) {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            document.getElementById('slide' + slideNumber).classList.add('active');
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // Market Overview Chart
+        new Chart(document.getElementById('marketChart'), {
+            type: 'line',
+            data: {
+                labels: ['2023', '2024', '2025', '2026', '2027'],
+                datasets: [{
+                    label: 'AI in Hospitality Market Size (Billions)',
+                    data: [1.21, 1.52, 1.91, 2.40, 3.02],
+                    borderColor: '#C4A962',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // AI Adoption Chart
+        new Chart(document.getElementById('aiAdoptionChart'), {
+            type: 'bar',
+            data: {
+                labels: ['2023', '2024', '2025'],
+                datasets: [{
+                    label: 'Industry AI Adoption Rate (%)',
+                    data: [35, 48, 65],
+                    backgroundColor: '#C4A962'
+                }]
+            }
+        });
+
+        // Detailed Investment Chart
+        new Chart(document.getElementById('detailedInvestmentChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Hardware', 'Software', 'Cloud', 'Training', 'Integration', 'Contingency'],
+                datasets: [{
+                    data: [4.5, 3.2, 2.2, 1.5, 2.8, 4.5],
+                    backgroundColor: [
+                        '#C4A962', '#2C2C2C', '#847344', 
+                        '#D4C9A8', '#594E2D', '#A69567'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // ROI Chart
+        new Chart(document.getElementById('detailedRoiChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3'],
+                datasets: [{
+                    label: 'Returns',
+                    data: [11.4, 29.6, 56.2],
+                    backgroundColor: '#C4A962'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Cost Savings Chart
+        new Chart(document.getElementById('costSavingsChart'), {
+            type: 'line',
+            data: {
+                labels: ['Baseline', 'Year 1', 'Year 2', 'Year 3'],
+                datasets: [{
+                    label: 'Cost Savings',
+                    data: [0, 4.2, 12.6, 25.5],
+                    borderColor: '#C4A962',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Industry Comparison Chart
+        new Chart(document.getElementById('industryComparisonChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Retail', 'Manufacturing', 'Banking', 'Hospitality (Current)', 'Hospitality (Projected)'],
+                datasets: [{
+                    label: 'AI Impact on Efficiency (%)',
+                    data: [35, 20, 30, 15, 40],
+                    backgroundColor: [
+                        'rgba(89, 78, 45, 0.6)',
+                        'rgba(89, 78, 45, 0.6)',
+                        'rgba(89, 78, 45, 0.6)',
+                        'rgba(212, 201, 168, 0.6)',
+                        'rgba(196, 169, 98, 0.6)'
+                    ]
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Efficiency Improvement (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Vision Chart
+        new Chart(document.getElementById('visionChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Guest Experience', 'Operational Efficiency', 'Revenue Growth', 'Sustainability', 'Innovation'],
+                datasets: [{
+                    label: 'Current State',
+                    data: [70, 60, 65, 55, 50],
+                    backgroundColor: 'rgba(196, 169, 98, 0.2)',
+                    borderColor: 'rgba(196, 169, 98, 1)',
+                    pointBackgroundColor: 'rgba(196, 169, 98, 1)'
+                }, {
+                    label: 'AI-Enabled Future',
+                    data: [95, 90, 85, 80, 95],
+                    backgroundColor: 'rgba(44, 44, 44, 0.2)',
+                    borderColor: 'rgba(44, 44, 44, 1)',
+                    pointBackgroundColor: 'rgba(44, 44, 44, 1)'
+                }]
+            },
+            options: {
+                scale: {
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+    </script>
 </body>
 </html>
 
